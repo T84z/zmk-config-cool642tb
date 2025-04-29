@@ -69,15 +69,13 @@
 
         default_layer {
             bindings = <
-&kp Q                 &kp W         &kp E         &kp R         &kp T                                                      &kp Y      &kp U  &kp I      &kp O       &kp P
-&kp A                 &kp S         &kp D         &kp F         &kp G                 &to 1                 &kp UP         &kp H      &kp J  &kp K      &kp L       &kp LEFT_BRACKET
-&kp Z                 &kp X         &kp C         &kp V         &kp B                 &kp LEFT_PARENTHESIS  &kp DOWN       &kp N      &kp M  &kp COMMA  &kp PERIOD  &kp MINUS
-&mt LEFT_CONTROL TAB  &kp LEFT_WIN  &kp ASTERISK  &kp LEFT_GUI  &mt LEFT_SHIFT SPACE  &mo 2                 &kp BACKSPACE  &kp ENTER                                &kp SLASH
+&kp Q                 &kp W         &kp E         &kp R         &kp T                                             &kp Y      &kp U  &kp I  &kp O      &kp P
+&kp A                 &kp S         &kp D         &kp F         &kp G        &to 1                 &kp F10        &kp H      &kp J  &kp K  &kp L      &kp ENTER
+&kp Z                 &kp X         &kp C         &kp V         &kp B        &kp LEFT_PARENTHESIS  &kp F7         &kp MINUS  &kp N  &kp M  &kp COMMA  &kp PERIOD
+&mt LEFT_CONTROL TAB  &kp LEFT_WIN  &kp ASTERISK  &kp LEFT_GUI  &lt 2 SPACE  &mt LEFT_SHIFT SPACE  &kp BACKSPACE  &kp SLASH                           &kp LEFT_BRACKET
             >;
 
-            sensor-bindings =
-                <&inc_dec_kp RIGHT_ARROW LEFT_ARROW>,
-                <&inc_dec_kp 0 0>;
+            sensor-bindings = <&inc_dec_kp LEFT RIGHT>, <&inc_dec_kp 0 0>;
         };
 
         FUNCTION {
@@ -93,13 +91,13 @@
 
         NUM {
             bindings = <
-&kp F1       &kp F1   &kp F4     &kp F7    &kp F10                                                 &kp N7            &kp N8      &kp N9        &kp O      &kp P
-&kp AT_SIGN  &kp F2   &kp F5     &kp F8    &kp F11       &kp N1          &kp INT_KATAKANAHIRAGANA  &kp NUMBER_4      &kp N5      &kp NUMBER_6  &kp RIGHT  &kp ENTER
-&kp Z        &kp F3   &kp F6     &kp F9    &kp F12       &kp LEFT_BRACE  &kp RIGHT_BRACE           &kp LC(NUMBER_1)  &kp RG(N2)  &kp N3        &kp X      &kp SLASH
-&kp RSHIFT   &kp TAB  &kp LCTRL  &kp RGUI  &kp LEFT_ALT  &kp UNDERSCORE  &none                     &kp NUMBER_0                                           &kp LEFT_SHIFT
+&kp F1       &kp F1           &kp F4     &kp F7    &kp F10                                                 &kp N7        &kp N8        &kp N9        &kp O      &kp P
+&kp AT_SIGN  &kp F2           &kp F5     &kp F8    &kp F11       &kp N1          &kp INT_KATAKANAHIRAGANA  &kp NUMBER_4  &kp N5        &kp NUMBER_6  &kp RIGHT  &kp ENTER
+&kp Z        &kp KP_NUMBER_1  &kp KP_N2  &kp F9    &kp F12       &kp LEFT_BRACE  &kp RIGHT_BRACE           &kp NUMBER_1  &kp NUMBER_2  &kp N3        &kp X      &kp SLASH
+&kp RSHIFT   &kp TAB          &kp LCTRL  &kp RGUI  &kp LEFT_ALT  &kp UNDERSCORE  &kp DELETE                &kp NUMBER_0                                         &kp RIGHT_BRACKET
             >;
 
-            sensor-bindings = <&inc_dec_kp END HOME>;
+            sensor-bindings = <&inc_dec_kp DOWN UP_ARROW>;
         };
 
         ARROW {
