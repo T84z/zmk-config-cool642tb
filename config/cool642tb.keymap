@@ -75,7 +75,7 @@
 &mt LEFT_CONTROL ESCAPE  &kp TAB  &kp LEFT_ALT  &kp LEFT_GUI  &lt 2 SPACE  &mt LEFT_SHIFT SPACE  &lt 2 BACKSPACE  &mt RIGHT_SHIFT ENTER                               &mt RIGHT_CONTROL INT_KATAKANAHIRAGANA
             >;
 
-            sensor-bindings = <&inc_dec_kp LEFT RIGHT>;
+            sensor-bindings = <&inc_dec_kp LEFT_ARROW RIGHT_ARROW>;
         };
 
         FUNCTION {
