@@ -69,10 +69,10 @@
 
         default_layer {
             bindings = <
-&kp Q                    &kp W    &kp E         &kp R         &kp T                                                &kp Y          &kp U  &kp I      &kp O       &kp P
-&kp A                    &kp S    &kp D         &kp F         &kp G        &kp LC(X)             &kp UP_ARROW      &kp H          &kp J  &kp K      &kp L       &kp SLASH
-&kp Z                    &kp X    &kp C         &kp V         &kp B        &mkp LCLK             &lt 1 DOWN_ARROW  &kp N          &kp M  &kp COMMA  &kp PERIOD  &kp MINUS
-&mt LEFT_CONTROL ESCAPE  &kp TAB  &kp LEFT_ALT  &kp LEFT_GUI  &lt 2 SPACE  &mt LEFT_SHIFT SPACE  &lt 2 ENTER       &kp BACKSPACE                                &mt RIGHT_SHIFT INT_KATAKANAHIRAGANA
+&kp Q                    &kp W    &kp E         &kp R         &kp T                                     &kp Y                  &kp U  &kp I      &kp O       &kp P
+&kp A                    &kp S    &kp D         &kp F         &kp G        &kp LC(X)  &kp DELETE        &kp H                  &kp J  &kp K      &kp L       &kp SLASH
+&kp Z                    &kp X    &kp C         &kp V         &kp B        &kp LEFT   &lt 1 UP_ARROW    &kp N                  &kp M  &kp COMMA  &kp PERIOD  &kp MINUS
+&mt LEFT_CONTROL ESCAPE  &kp TAB  &kp LEFT_ALT  &kp LEFT_GUI  &lt 2 SPACE  &kp RIGHT  &lt 2 DOWN_ARROW  &mt RIGHT_SHIFT ENTER                                &mt RIGHT_SHIFT LANG5
             >;
 
             sensor-bindings = <&inc_dec_kp LEFT_ARROW RIGHT_ARROW>;
@@ -91,10 +91,10 @@
 
         NUM {
             bindings = <
-&kp F1      &kp F2   &kp F3     &kp F4     &kp F5                                       &kp KP_N7     &kp KP_N8        &kp KP_N9  &kp MINUS     &kp PRINTSCREEN
-&kp F6      &kp F7   &kp F8     &kp F9     &kp F10       &mkp MB2        &kp PAGE_UP    &kp KP_N4     &kp KP_N5        &kp KP_N6  &kp PLUS      &kp LEFT_BRACKET
-&kp F11     &kp F12  &kp KP_N1  &kp KP_N2  &kp F7        &kp F10         &kp PAGE_DOWN  &kp KP_N1     &kp KP_NUMBER_2  &kp KP_N3  &kp ASTERISK  &kp RIGHT_BRACKET
-&kp RSHIFT  &kp TAB  &kp LCTRL  &kp RGUI   &kp LEFT_ALT  &kp UNDERSCORE  &kp ASTERISK   &kp NUMBER_0                                            &kp INT5
+&kp F1      &kp F2   &kp F3     &kp F4     &kp F5                                       &kp KP_N7     &kp KP_N8        &kp KP_N9  &kp KP_MINUS     &kp PRINTSCREEN
+&kp F6      &kp F7   &kp F8     &kp F9     &kp F10       &mkp MB2        &kp PAGE_UP    &kp KP_N4     &kp KP_N5        &kp KP_N6  &kp KP_PLUS      &kp LEFT_BRACKET
+&kp F11     &kp F12  &kp KP_N1  &kp KP_N2  &kp F7        &kp F10         &kp PAGE_DOWN  &kp KP_N1     &kp KP_NUMBER_2  &kp KP_N3  &kp KP_MULTIPLY  &kp RIGHT_BRACKET
+&kp RSHIFT  &kp TAB  &kp LCTRL  &kp RGUI   &kp LEFT_ALT  &kp UNDERSCORE  &kp ASTERISK   &kp NUMBER_0                                               &kp INT5
             >;
 
             sensor-bindings = <&inc_dec_kp HOME END>;
