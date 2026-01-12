@@ -1,8 +1,17 @@
+/*
+ * cool642tb_R.overlay (example)
+ *  - PMW3610 を 3-wire(SDIO 1本)想定で動かすために HALF DUPLEX を明示
+ *  - smart-mode を有効化
+ */
+
 #include "cool642tb.dtsi"
 
 /* Input Processor を使うために追加 */
 #include <input/processors.dtsi>
 #include <dt-bindings/zmk/input_transform.h>
+
+/* SPI_HALF_DUPLEX を使うために追加 */
+#include <dt-bindings/spi/spi.h>
 
 &default_transform {
     col-offset = <6>;
@@ -25,12 +34,11 @@
 
         /*
          * 感度調整（カーソル移動）
-         * 例：別キーボードの設定を踏襲
-         *   X: 6/10
-         *   Y: 8/10
+         *   X: 12/10
+         *   Y: 15/10
          */
         input-processors =
-            <&zip_x_scaler 12 10>,
+            <&zip_x_scaler 15 10>,
             <&zip_y_scaler 15 10>;
 
         /*
@@ -81,15 +89,35 @@
         compatible = "pixart,pmw3610";
         reg = <0>;
         spi-max-frequency = <2000000>;
+
+        /*
+         * ★重要：SDIO(データ1本)想定
+         * MOSI/MISO を同一ピンにしている構成では
+         * HALF DUPLEX 明示が効くことが多い
+         */
+        duplex = <SPI_HALF_DUPLEX>;
+
+        /*
+         * ★表面条件の幅を広げる（効くことが多い）
+         * ドライバが対応していれば有効になります
+         */
+        smart-mode;
+
+        /*
+         * 割り込み（モーション）
+         * もし将来バインディング側で motion-gpios が要求される場合は
+         *   irq-gpios -> motion-gpios
+         * に変更してください
+         */
         irq-gpios = <&gpio0 2 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
 
         /* これはそのまま（必要なら） */
         automouse-layer = <4>;
 
         /*
-         * 重要：
          * ここに scroll-layers が残っていると
-         * “ドライバ側のスクロール切替” と “Input Processor側のスクロール変換” が二重になりがちなので削除しました。
+         * “ドライバ側のスクロール切替” と “Input Processor側のスクロール変換” が二重になりがちなので
+         * 基本は使わず、listener側 scroller に寄せる
          */
         // scroll-layers = <1>;
     };
