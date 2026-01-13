@@ -32,7 +32,7 @@
          *   Y: 15/10
          */
         input-processors =
-            <&zip_x_scaler 15 10>,
+            <&zip_x_scaler 12 10>,
             <&zip_y_scaler 15 10>;
 
         /*
