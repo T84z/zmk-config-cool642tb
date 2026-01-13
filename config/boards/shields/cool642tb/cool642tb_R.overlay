@@ -1,21 +1,10 @@
-/*
- * cool642tb_R.overlay
- * - Zephyr標準 pixart,pmw3610 を使用
- * - SDIO(1線)想定で HALF DUPLEX + smart-mode
- * - EC11 を devicetree で定義し、keymap-sensors に登録
- * - NFCTピンをGPIO化（CONFIG_NFCT_PINS_AS_GPIOS 置き換え）
- */
-
 #include "cool642tb.dtsi"
 
-/* Input Processor を使う */
+/* Input Processor を使うために追加 */
 #include <input/processors.dtsi>
 #include <dt-bindings/zmk/input_transform.h>
 
-/* PMW3610 axis code */
-#include <zephyr/dt-bindings/input/input-event-codes.h>
-
-/* SPI HALF DUPLEX */
+/* HALF DUPLEX を指定するなら必要（値を直書きにするなら不要） */
 #include <dt-bindings/spi/spi.h>
 
 &default_transform {
@@ -32,60 +21,25 @@
         ;
 };
 
-/* nRF52840のNFCピン(P0.09/P0.10)をGPIOとして使う */
-&uicr {
-    nfct-pins-as-gpios;
-};
-
-/
-{
-    /*
-     * EC11 エンコーダ（回転）
-     * ★ここは実配線に合わせて変更してください★
-     */
-    enc0: enc0 {
-        compatible = "alps,ec11";
-        status = "okay";
-
-        /* 例：A=GPIO0.07, B=GPIO0.08（仮） */
-        a-gpios = <&gpio0 7 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>;
-        b-gpios = <&gpio0 8 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>;
-
-        /* エンコーダ1回転あたりのパルス数（EC11は 20/24/30 など。手持ちに合わせる） */
-        steps = <30>;
-    };
-
-    /*
-     * ZMKに「このキーボードで使うセンサー一覧」を教えるノード
-     * （EC11を実際に使うのに必要）
-     */
-    sensors: sensors {
-        compatible = "zmk,keymap-sensors";
-        sensors = <&enc0>;
-
-        /* 1回転あたり何回“カチッ”で動作を発火させるか（一般に steps と同じ値にすると分かりやすい） */
-        triggers-per-rotation = <30>;
-    };
-
-    /*
-     * PMW3610 入力を受けてカーソル/スクロールに変換
-     */
+/ {
     trackball_listener: trackball_listener {
         compatible = "zmk,input-listener";
         device = <&trackball>;
 
         /*
-         * Auto-mouse-layer相当：
-         * 入力が来たら layer4 を一時的にON、500ms無入力でOFF
+         * 感度調整（カーソル移動）
+         *   X: 12/10
+         *   Y: 15/10
          */
         input-processors =
-            <&zip_temp_layer 4 500>,
-
-            /* 感度（カーソル移動） */
-            <&zip_x_scaler 12 10>,
+            <&zip_x_scaler 15 10>,
             <&zip_y_scaler 15 10>;
 
-        /* レイヤ1でスクロール */
+        /*
+         * スクロール（レイヤ1でのみ有効）
+         *  - XY移動 → スクロールへ変換
+         *  - 1/70 でスクロール量を調整（必要ならここだけ変更）
+         */
         scroller {
             layers = <1>;
             input-processors =
@@ -99,16 +53,16 @@
     spi0_default: spi0_default {
         group1 {
             psels = <NRF_PSEL(SPIM_SCK, 0, 5)>,
-                    <NRF_PSEL(SPIM_MOSI, 0, 4)>,
-                    <NRF_PSEL(SPIM_MISO, 0, 4)>;
+                <NRF_PSEL(SPIM_MOSI, 0, 4)>,
+                <NRF_PSEL(SPIM_MISO, 0, 4)>;
         };
     };
 
     spi0_sleep: spi0_sleep {
         group1 {
             psels = <NRF_PSEL(SPIM_SCK, 0, 5)>,
-                    <NRF_PSEL(SPIM_MOSI, 0, 4)>,
-                    <NRF_PSEL(SPIM_MISO, 0, 4)>;
+                <NRF_PSEL(SPIM_MOSI, 0, 4)>,
+                <NRF_PSEL(SPIM_MISO, 0, 4)>;
             low-power-enable;
         };
     };
@@ -129,25 +83,36 @@
         compatible = "pixart,pmw3610";
         reg = <0>;
 
-        /* まずは2MHz。怪しければ 1MHz/500kHz に落として切り分け */
+        /* まずは2MHz。怪しければ 1MHz/500kHz に下げる */
         spi-max-frequency = <2000000>;
 
-        /* MOSI/MISO同一ピン(SDIO 1線)ならHALF DUPLEX推奨 */
+        /*
+         * MOSI/MISO を同一ピンにしている（SDIO 1線）ので HALF DUPLEX 推奨
+         * もし binding が duplex を受けない場合はこの行をコメントアウトし、
+         * まずは smart-mode だけ（or 何も無し）で通す。
+         */
         duplex = <SPI_HALF_DUPLEX>;
+        // duplex = <2048>; /* include無しで直書きする場合 */
 
-        /* 表面条件の許容を広げる（smart algorithm） */
+        /*
+         * smart-mode をDTで指定したい場合：
+         * 外部モジュールの binding(pixart,pmw3610.yml) に
+         * smart-mode が定義されている必要があります。
+         * まだなら一旦コメントアウトしてビルド優先。
+         */
         smart-mode;
+        // smart-mode;
 
-        /* Zephyr標準bindingで必須 */
-        motion-gpios = <&gpio0 2 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
-        zephyr,axis-x = <INPUT_REL_X>;
-        zephyr,axis-y = <INPUT_REL_Y>;
+        irq-gpios = <&gpio0 2 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
 
-        /* CPI（200刻み想定）。あなたの 400 に合わせる */
-        res-cpi = <400>;
+        /* 外部ドライバ側の automouse */
+        automouse-layer = <4>;
 
-        /* 方向が合わなければ反転（必要に応じて片方だけに） */
-        invert-x;
-        invert-y;
+        /*
+         * scroll-layers が残っていると
+         * ドライバ側切替と listener側 scroller が二重になりがちなので
+         * 基本は使わず listener 側で完結させる
+         */
+        // scroll-layers = <1>;
     };
 };
