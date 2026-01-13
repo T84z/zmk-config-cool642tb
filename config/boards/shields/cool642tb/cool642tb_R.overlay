@@ -1,11 +1,8 @@
 #include "cool642tb.dtsi"
 
-/* Input Processor を使うために追加 */
+/* Input Processor を使う */
 #include <input/processors.dtsi>
 #include <dt-bindings/zmk/input_transform.h>
-
-/* HALF DUPLEX を指定するなら必要（値を直書きにするなら不要） */
-#include <dt-bindings/spi/spi.h>
 
 &default_transform {
     col-offset = <6>;
@@ -27,18 +24,19 @@
         device = <&trackball>;
 
         /*
-         * 感度調整（カーソル移動）
-         *   X: 12/10
-         *   Y: 15/10
+         * 感度（カーソル移動）
+         * 例：提示いただいた別キーボード設定を踏襲
+         *   X = 6/10
+         *   Y = 8/10
          */
         input-processors =
-            <&zip_x_scaler 12 10>,
+            <&zip_x_scaler 16 10>,
             <&zip_y_scaler 15 10>;
 
         /*
-         * スクロール（レイヤ1でのみ有効）
-         *  - XY移動 → スクロールへ変換
-         *  - 1/70 でスクロール量を調整（必要ならここだけ変更）
+         * スクロール（レイヤ1のときだけ）
+         *  - XY移動 → スクロールに変換
+         *  - 1/70 はお好みで（大きいほど遅い）
          */
         scroller {
             layers = <1>;
@@ -82,36 +80,15 @@
         status = "okay";
         compatible = "pixart,pmw3610";
         reg = <0>;
-
-        /* まずは2MHz。怪しければ 1MHz/500kHz に下げる */
         spi-max-frequency = <2000000>;
-
-        /*
-         * MOSI/MISO を同一ピンにしている（SDIO 1線）ので HALF DUPLEX 推奨
-         * もし binding が duplex を受けない場合はこの行をコメントアウトし、
-         * まずは smart-mode だけ（or 何も無し）で通す。
-         */
-        duplex = <SPI_HALF_DUPLEX>;
-        // duplex = <2048>; /* include無しで直書きする場合 */
-
-        /*
-         * smart-mode をDTで指定したい場合：
-         * 外部モジュールの binding(pixart,pmw3610.yml) に
-         * smart-mode が定義されている必要があります。
-         * まだなら一旦コメントアウトしてビルド優先。
-         */
-        smart-mode;
-        // smart-mode;
-
         irq-gpios = <&gpio0 2 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
 
-        /* 外部ドライバ側の automouse */
+        /* ここは残す（あなたの運用どおり） */
         automouse-layer = <4>;
 
         /*
-         * scroll-layers が残っていると
-         * ドライバ側切替と listener側 scroller が二重になりがちなので
-         * 基本は使わず listener 側で完結させる
+         * 重要：Input Processor でスクロール化するので、ドライバ側の scroll-layers は使わない
+         * 二重に効くのを避けるため削除（またはコメントアウト）
          */
         // scroll-layers = <1>;
     };
