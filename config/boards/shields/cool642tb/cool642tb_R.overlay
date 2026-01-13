@@ -1,16 +1,21 @@
 /*
- * cool642tb_R.overlay (example)
- *  - PMW3610 を 3-wire(SDIO 1本)想定で動かすために HALF DUPLEX を明示
- *  - smart-mode を有効化
+ * cool642tb_R.overlay (Zephyr標準 pixart,pmw3610 用)
+ * - motion-gpios / zephyr,axis-x/y を追加（必須）
+ * - duplex を HALF DUPLEX に（SDIO 1本想定）
+ * - smart-mode を有効化
+ * - automouse-layer は使わず、zip_temp_layer で AML 相当を実現
  */
 
 #include "cool642tb.dtsi"
 
-/* Input Processor を使うために追加 */
+/* Input Processor を使う */
 #include <input/processors.dtsi>
 #include <dt-bindings/zmk/input_transform.h>
 
-/* SPI_HALF_DUPLEX を使うために追加 */
+/* PMW3610 の axis コード */
+#include <zephyr/dt-bindings/input/input-event-codes.h>
+
+/* SPI HALF DUPLEX マクロ */
 #include <dt-bindings/spi/spi.h>
 
 &default_transform {
@@ -33,12 +38,20 @@
         device = <&trackball>;
 
         /*
-         * 感度調整（カーソル移動）
-         *   X: 12/10
-         *   Y: 15/10
+         * まず AML 相当：
+         * ポインタ入力が来たら layer 4 を一時的に有効化し、
+         * 500ms 入力が無ければ自動で解除
+         *   (&zip_temp_layer <layer> <timeout_ms>)
          */
         input-processors =
-            <&zip_x_scaler 15 10>,
+            <&zip_temp_layer 4 500>,
+
+            /*
+             * 感度調整（カーソル移動）
+             *   X: 12/10
+             *   Y: 15/10
+             */
+            <&zip_x_scaler 17 10>,
             <&zip_y_scaler 15 10>;
 
         /*
@@ -59,16 +72,16 @@
     spi0_default: spi0_default {
         group1 {
             psels = <NRF_PSEL(SPIM_SCK, 0, 5)>,
-                <NRF_PSEL(SPIM_MOSI, 0, 4)>,
-                <NRF_PSEL(SPIM_MISO, 0, 4)>;
+                    <NRF_PSEL(SPIM_MOSI, 0, 4)>,
+                    <NRF_PSEL(SPIM_MISO, 0, 4)>;
         };
     };
 
     spi0_sleep: spi0_sleep {
         group1 {
             psels = <NRF_PSEL(SPIM_SCK, 0, 5)>,
-                <NRF_PSEL(SPIM_MOSI, 0, 4)>,
-                <NRF_PSEL(SPIM_MISO, 0, 4)>;
+                    <NRF_PSEL(SPIM_MOSI, 0, 4)>,
+                    <NRF_PSEL(SPIM_MISO, 0, 4)>;
             low-power-enable;
         };
     };
@@ -91,33 +104,38 @@
         spi-max-frequency = <2000000>;
 
         /*
-         * ★重要：SDIO(データ1本)想定
-         * MOSI/MISO を同一ピンにしている構成では
-         * HALF DUPLEX 明示が効くことが多い
+         * SDIO(データ1本)構成なら HALF DUPLEX を明示
+         * 0=FULL, 2048=HALF
          */
         duplex = <SPI_HALF_DUPLEX>;
 
-        /*
-         * ★表面条件の幅を広げる（効くことが多い）
-         * ドライバが対応していれば有効になります
-         */
+        /* smart mode（表面条件の幅を広げる） */
+        smart-mode;
 
         /*
-         * 割り込み（モーション）
-         * もし将来バインディング側で motion-gpios が要求される場合は
-         *   irq-gpios -> motion-gpios
-         * に変更してください
+         * Zephyr標準 binding で必須：
+         * - motion pin（active low）
+         * - axis code
          */
-        irq-gpios = <&gpio0 2 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
-
-        /* これはそのまま（必要なら） */
-        automouse-layer = <4>;
+        motion-gpios = <&gpio0 2 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
+        zephyr,axis-x = <INPUT_REL_X>;
+        zephyr,axis-y = <INPUT_REL_Y>;
 
         /*
-         * ここに scroll-layers が残っていると
-         * “ドライバ側のスクロール切替” と “Input Processor側のスクロール変換” が二重になりがちなので
-         * 基本は使わず、listener側 scroller に寄せる
+         * CPI（200刻み）。あなたの設定(400)に合わせる
+         * ※必要なら 600/800... に上げて調整
          */
-        // scroll-layers = <1>;
+        res-cpi = <400>;
+
+        /*
+         * 方向が合わなければここで反転
+         * 180度回転相当なら両方 invert が基本候補
+         * （合わない方だけコメントアウトしてください）
+         */
+        invert-x;
+        invert-y;
+
+        /* resetピンがある場合だけ使う（無ければ不要） */
+        // reset-gpios = <&gpio0 XX GPIO_ACTIVE_LOW>;
     };
 };
