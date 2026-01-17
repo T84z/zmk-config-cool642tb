@@ -24,19 +24,18 @@
         device = <&trackball>;
 
         /*
-         * 感度（カーソル移動）
-         * 例：提示いただいた別キーボード設定を踏襲
-         *   X = 6/10
-         *   Y = 8/10
+         * 1) 追従改善のため「増幅」をやめる（まずは等倍）
+         *   - 速い動きで頭打ち/飽和っぽくなるのを避ける狙い
+         *   - 感度が足りない場合は、まずCPI側を上げるか、
+         *     ここを 9/10, 8/10… のように「減衰方向」で調整推奨
          */
         input-processors =
-            <&zip_x_scaler 16 10>,
-            <&zip_y_scaler 15 10>;
+            <&zip_x_scaler 10 10>,
+            <&zip_y_scaler 10 10>;
 
         /*
          * スクロール（レイヤ1のときだけ）
-         *  - XY移動 → スクロールに変換
-         *  - 1/70 はお好みで（大きいほど遅い）
+         *  - 追従の切り分けを最優先なら、ここも一旦コメントアウト推奨
          */
         scroller {
             layers = <1>;
@@ -83,12 +82,15 @@
         spi-max-frequency = <2000000>;
         irq-gpios = <&gpio0 2 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
 
-        /* ここは残す（あなたの運用どおり） */
-        automouse-layer = <4>;
+        /*
+         * 2) automouse-layer を無効化
+         *    - レイヤーが勝手に揺れて追従/体感を崩すのを避ける
+         */
+        // automouse-layer = <4>;
 
         /*
-         * 重要：Input Processor でスクロール化するので、ドライバ側の scroll-layers は使わない
-         * 二重に効くのを避けるため削除（またはコメントアウト）
+         * Input Processor でスクロール化するので、ドライバ側の scroll-layers は使わない
+         * 二重に効くのを避けるためオフ
          */
         // scroll-layers = <1>;
     };
